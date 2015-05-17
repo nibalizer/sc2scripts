@@ -14,8 +14,6 @@ def zeroint(i):
 
 
 def main():
-    zealots_made = 0
-    zealots_died = 0
     parser = argparse.ArgumentParser(
         description="""Print the Zealot stats on a replay"""
     )
@@ -27,25 +25,20 @@ def main():
     if os.path.isdir(args.FILE):
         for root, dirs, files in os.walk(args.FILE):
             for name in files:
-#                try:
                 paths.append(os.path.join(root, name))
-#                except:
-#                    from pdb import set_trace; set_trace()
     else:
         paths = args.FILE
 
-    print (paths)
-
     for replay in sc2reader.load_replays(paths, debug=True):
-        print("Release {0}".format(replay.release_string))
+        zealots_made = 0
+        zealots_died = 0
+        #from pdb import set_trace; set_trace()
         print("{0} on {1} at {2}".format(replay.type, replay.map_name, replay.start_time))
-        print("")
         for team in replay.teams:
             print(team)
-            for player in team.players:
-                print("  {0}".format(player))
 
-        print("\n--------------------------\n\n")
+        print("Winner {0}".format(replay.winner))
+        print("Time {0}".format(replay.game_length))
 
         # Allow specification of events to `show`
         # Loop through the events
