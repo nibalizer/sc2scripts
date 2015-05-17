@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function, unicode_literals, division
 
+import os
 
 import argparse
 import sc2reader
@@ -9,7 +10,7 @@ from sc2reader.events import *
 
 
 def zeroint(i):
-    return 0;
+    return 0
 
 
 def main():
@@ -22,9 +23,20 @@ def main():
     parser.add_argument('FILE', type=str, help="The file you would like to replay")
     args = parser.parse_args()
 
-    for filename in sc2reader.utils.get_files(args.FILE):
-        replay = sc2reader.load_replay(filename, debug=True)
-        r = replay
+    paths = []
+    if os.path.isdir(args.FILE):
+        for root, dirs, files in os.walk(args.FILE):
+            for name in files:
+#                try:
+                paths.append(os.path.join(root, name))
+#                except:
+#                    from pdb import set_trace; set_trace()
+    else:
+        paths = args.FILE
+
+    print (paths)
+
+    for replay in sc2reader.load_replays(paths, debug=True):
         print("Release {0}".format(replay.release_string))
         print("{0} on {1} at {2}".format(replay.type, replay.map_name, replay.start_time))
         print("")
@@ -40,13 +52,12 @@ def main():
         for event in replay.events:
 
             if event.name in ['UnitBornEvent', 'UnitInitEvent']:
-                if  'Zealot' in str(event.unit):
+                if 'Zealot' in str(event.unit):
                     zealots_made += 1
 
             if event.name in ['UnitDiedEvent']:
-                if  'Zealot' in str(event.unit):
+                if 'Zealot' in str(event.unit):
                     zealots_died += 1
-
 
         print ("Zealots made: {0}".format(zealots_made))
         print ("Zealots died: {0}".format(zealots_died))
