@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function, unicode_literals, division
 
-import collections
 
 import argparse
 import sc2reader
@@ -14,18 +13,13 @@ def zeroint(i):
 
 
 def main():
-    players = {}
+    zealots_made = 0
+    zealots_died = 0
     parser = argparse.ArgumentParser(
-        description="""Step by step replay of game events; shows only the
-        Initialization, Command, and Selection events by default. Press any
-        key to advance through the events in sequential order."""
+        description="""Print the Zealot stats on a replay"""
     )
 
     parser.add_argument('FILE', type=str, help="The file you would like to replay")
-    parser.add_argument('--player', default=0, type=int, help="The number of the player you would like to watch. Defaults to 0 (All).")
-    parser.add_argument('--bytes', default=False, action="store_true", help="Displays the byte code of the event in hex after each event.")
-    parser.add_argument('--hotkeys', default=False, action="store_true", help="Shows the hotkey events in the event stream.")
-    parser.add_argument('--cameras', default=False, action="store_true", help="Shows the camera events in the event stream.")
     args = parser.parse_args()
 
     for filename in sc2reader.utils.get_files(args.FILE):
@@ -38,10 +32,25 @@ def main():
             print(team)
             for player in team.players:
                 print("  {0}".format(player))
-                players[player.name] = collections.defaultdict(zeroint)
 
         print("\n--------------------------\n\n")
 
+        # Allow specification of events to `show`
+        # Loop through the events
+        for event in replay.events:
+
+            if event.name in ['UnitBornEvent', 'UnitInitEvent']:
+                if  'Zealot' in str(event.unit):
+                    zealots_made += 1
+
+            if event.name in ['UnitDiedEvent']:
+                if  'Zealot' in str(event.unit):
+                    zealots_died += 1
+
+
+        print ("Zealots made: {0}".format(zealots_made))
+        print ("Zealots died: {0}".format(zealots_died))
+        print ("Zealots that made it: {0}".format(zealots_made - zealots_died))
 
 
 if __name__ == '__main__':
