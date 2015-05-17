@@ -1,0 +1,4 @@
+argparse==1.2.1
+mpyq==0.2.5
+sc2reader==0.7.0rc0
+wsgiref==0.1.2
