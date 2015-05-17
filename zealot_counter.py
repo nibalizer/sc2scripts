@@ -38,7 +38,6 @@ def main():
             print(team)
             for player in team.players:
                 print("  {0}".format(player))
-                from pdb import set_trace; set_trace()
                 players[player.name] = collections.defaultdict(zeroint)
 
         print("\n--------------------------\n\n")
