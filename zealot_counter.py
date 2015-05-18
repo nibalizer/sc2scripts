@@ -6,11 +6,7 @@ import os
 
 import argparse
 import sc2reader
-from sc2reader.events import *
 
-
-def zeroint(i):
-    return 0
 
 def init_analyzer():
     parser = argparse.ArgumentParser(
