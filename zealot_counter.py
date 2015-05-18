@@ -12,8 +12,7 @@ from sc2reader.events import *
 def zeroint(i):
     return 0
 
-
-def main():
+def init_analyzer():
     parser = argparse.ArgumentParser(
         description="""Print the Zealot stats on a replay"""
     )
@@ -28,40 +27,45 @@ def main():
                 paths.append(os.path.join(root, name))
     else:
         paths = args.FILE
+    return paths
 
-    for replay in sc2reader.load_replays(paths, debug=True):
-        # init variables
-        zealots_made = 0
-        zealots_died = 0
 
-        # check if a protoss is playing
-        races = [i.play_race for i in replay.players]
-        if 'Protoss' not in races:
-            continue
+def analyze_replay(replay):
 
-        print("{0} on {1} at {2}".format(replay.type, replay.map_name, replay.start_time))
-        for team in replay.teams:
-            print(team)
+    # init variables
+    zealots_made = 0
+    zealots_died = 0
 
-        print("Winner {0}".format(replay.winner))
-        print("Time {0}".format(replay.game_length))
+    # check if a protoss is playing
+    races = [i.play_race for i in replay.players]
+    if 'Protoss' not in races:
+        return
 
-        # Allow specification of events to `show`
-        # Loop through the events
-        for event in replay.events:
+    print("{0} on {1} at {2}".format(replay.type, replay.map_name, replay.start_time))
+    for team in replay.teams:
+        print(team)
 
-            if event.name in ['UnitBornEvent', 'UnitInitEvent']:
-                if 'Zealot' in str(event.unit):
-                    zealots_made += 1
+    print("Winner {0}".format(replay.winner))
+    print("Time {0}".format(replay.game_length))
 
-            if event.name in ['UnitDiedEvent']:
-                if 'Zealot' in str(event.unit):
-                    zealots_died += 1
+    # Allow specification of events to `show`
+    # Loop through the events
+    for event in replay.events:
 
-        print ("Zealots made: {0}".format(zealots_made))
-        print ("Zealots died: {0}".format(zealots_died))
-        print ("Zealots that made it: {0}".format(zealots_made - zealots_died))
+        if event.name in ['UnitBornEvent', 'UnitInitEvent']:
+            if 'Zealot' in str(event.unit):
+                zealots_made += 1
+
+        if event.name in ['UnitDiedEvent']:
+            if 'Zealot' in str(event.unit):
+                zealots_died += 1
+
+    print ("Zealots made: {0}".format(zealots_made))
+    print ("Zealots died: {0}".format(zealots_died))
+    print ("Zealots that made it: {0}".format(zealots_made - zealots_died))
 
 
 if __name__ == '__main__':
-    main()
+    paths = init_analyzer()
+    for replay in sc2reader.load_replays(paths, debug=True):
+        analyze_replay(replay)
