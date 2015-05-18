@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, print_function, unicode_literals, division
+from __future__ import (absolute_import, print_function, unicode_literals,
+                        division)
 
 import os
 
@@ -13,7 +14,8 @@ def init_analyzer():
         description="""Print the Zealot stats on a replay"""
     )
 
-    parser.add_argument('FILE', type=str, help="The file you would like to replay")
+    parser.add_argument('FILE', type=str,
+                        help="The file you would like to replay")
     args = parser.parse_args()
 
     paths = []
@@ -37,7 +39,8 @@ def analyze_replay(replay):
     if 'Protoss' not in races:
         return
 
-    print("{0} on {1} at {2}".format(replay.type, replay.map_name, replay.start_time))
+    print("{0} on {1} at {2}".format(replay.type,
+                                     replay.map_name, replay.start_time))
     for team in replay.teams:
         print(team)
 
