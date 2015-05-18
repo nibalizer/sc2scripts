@@ -30,9 +30,15 @@ def main():
         paths = args.FILE
 
     for replay in sc2reader.load_replays(paths, debug=True):
+        # init variables
         zealots_made = 0
         zealots_died = 0
-        #from pdb import set_trace; set_trace()
+
+        # check if a protoss is playing
+        races = [i.play_race for i in replay.players]
+        if 'Protoss' not in races:
+            continue
+
         print("{0} on {1} at {2}".format(replay.type, replay.map_name, replay.start_time))
         for team in replay.teams:
             print(team)
