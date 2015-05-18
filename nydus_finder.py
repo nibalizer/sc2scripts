@@ -30,49 +30,28 @@ def init_analyzer():
 
 def analyze_replay(replay, result_data):
 
-    # check if a protoss is playing
-    races = [i.play_race for i in replay.players]
-    if 'Protoss' not in races:
-        return
-
-    print("{0} on {1} at {2}".format(replay.type,
-                                     replay.map_name, replay.start_time))
-    for team in replay.teams:
-        print(team)
-
-    print("Winner {0}".format(replay.winner))
-    print("Time {0}".format(replay.game_length))
-
     for player in replay.players:
         # bail if this player is not Protoss
-        if player.play_race != 'Protoss':
-            continue
-        print(player.name)
 
-        zs = [i for i in player.units if i.name == 'Zealot']
-        zealots_made = len(zs)
-        dead_zs = [i for i in zs if i.died_at is not None]
-        zealots_died = len(dead_zs)
+        nydus = [i for i in player.units if 'Nydus' in i.name]
+        if len(nydus) > 0:
 
-        print ("Zealots made: {0}".format(zealots_made))
-        print ("Zealots died: {0}".format(zealots_died))
-        print ("Zealots that made it: {0}".format(zealots_made - zealots_died))
-        if (zealots_made - zealots_died) > 0:
-            result_data["zealots_lived"] += 1
-            result_data["total_zealots_lived"] += (zealots_made - zealots_died)
-        else:
-            result_data["zealots_all_died"] += 1
+            print("{0} on {1} at {2}".format(replay.type,
+                                             replay.map_name, replay.start_time))
+            for team in replay.teams:
+                print(team)
+
+            print("Winner {0}".format(replay.winner))
+            print("Time {0}".format(replay.game_length))
+            print ("Created Nydus")
+            result_data["nydus"] += len(nydus)
 
 
 if __name__ == '__main__':
     result_data = {}
-    result_data["zealots_lived"] = 0
-    result_data["zealots_all_died"] = 0
-    result_data["total_zealots_lived"] = 0
+    result_data["nydus"] = 0
     paths = init_analyzer()
     for replay in sc2reader.load_replays(paths, debug=True):
         analyze_replay(replay, result_data)
     print ("###")
-    print ("Number of games where zealots all died: ", result_data["zealots_all_died"])
-    print ("Number of games where some zealots lived: {0}".format(result_data["zealots_lived"]))
-    print ("Total number of zealots that lived: {0}".format(result_data["total_zealots_lived"]))
+    print ("Nyduses Created", result_data["nydus"])
