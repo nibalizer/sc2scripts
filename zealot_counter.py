@@ -30,10 +30,6 @@ def init_analyzer():
 
 def analyze_replay(replay):
 
-    # init variables
-    zealots_made = 0
-    zealots_died = 0
-
     # check if a protoss is playing
     races = [i.play_race for i in replay.players]
     if 'Protoss' not in races:
@@ -47,21 +43,20 @@ def analyze_replay(replay):
     print("Winner {0}".format(replay.winner))
     print("Time {0}".format(replay.game_length))
 
-    # Allow specification of events to `show`
-    # Loop through the events
-    for event in replay.events:
+    for player in replay.players:
+        # bail if this player is not Protoss
+        if player.play_race != 'Protoss':
+            continue
 
-        if event.name in ['UnitBornEvent', 'UnitInitEvent']:
-            if 'Zealot' in str(event.unit):
-                zealots_made += 1
+        zs = [i for i in player.units if i.name == 'Zealot']
+        zealots_made = len(zs)
+        dead_zs = [i for i in zs if i.died_at is not None]
+        zealots_died = len(dead_zs)
 
-        if event.name in ['UnitDiedEvent']:
-            if 'Zealot' in str(event.unit):
-                zealots_died += 1
 
-    print ("Zealots made: {0}".format(zealots_made))
-    print ("Zealots died: {0}".format(zealots_died))
-    print ("Zealots that made it: {0}".format(zealots_made - zealots_died))
+        print ("Zealots made: {0}".format(zealots_made))
+        print ("Zealots died: {0}".format(zealots_died))
+        print ("Zealots that made it: {0}".format(zealots_made - zealots_died))
 
 
 if __name__ == '__main__':
