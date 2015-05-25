@@ -4,6 +4,8 @@ from __future__ import (absolute_import, print_function, unicode_literals,
                         division)
 
 import os
+import math
+import copy
 
 import argparse
 import sc2reader
@@ -58,6 +60,24 @@ def analyze_replay(replay, result_data):
                 print ("Cannons started after expo, no cannon rush")
                 continue
 
+            # See if cannon is close to enemy starting position
+            players_copy = copy.copy(replay.players)
+            players_copy.remove(player)
+            enemy_start_position = players_copy[0].units[15].location  # 15 becuase the first 14 are random init things
+            cannon_pos = cannons[0].location
+            x1,y1,x2,y2 = [ int(i) for i in  cannon_pos + enemy_start_position ]
+
+            distance = math.sqrt((x2-x1)**2 + (y2-y1)**2)
+
+            print ("Cannon Distance from enemy start " + str(distance))
+            if distance < 65:
+                print ("Cannon distance from ememy start lower than threshold(65)")
+                print ("Cannon rush detected")
+                cannon_rush = True
+            else:
+                print ("Cannon too far from enemy base, no cannon rush")
+                continue
+
             # See if cannon made before 5 minutes
             for i in cannons:
                 if i.started_at < (5 * 60 * replay.game_fps):
@@ -78,7 +98,6 @@ def analyze_replay(replay, result_data):
 
                 food = player_stats_events[correct_stat_event_index].food_used
                 if food < 20:
-                    from pdb import set_trace; set_trace()
                     print("Cannon built when less than 20 food, cannon rush detected")
                     cannon_rush = True
 
