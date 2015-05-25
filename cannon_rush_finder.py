@@ -18,6 +18,7 @@ def init_analyzer():
                         help="The file you would like to replay")
     args = parser.parse_args()
 
+    # deterimine if recursing through directory or using a single file
     paths = []
     if os.path.isdir(args.FILE):
         for root, dirs, files in os.walk(args.FILE):
@@ -45,10 +46,17 @@ def analyze_replay(replay, result_data):
 
             print("Winner {0}".format(replay.winner))
             print("Time {0}".format(replay.game_length))
-            print ("Created Cannons")
             result_data["cannons"] += len(cannons)
 
             # Detect cannon rush
+
+            # See if cannons before nexus
+
+            nexi = [i for i in player.units if i.name == 'Nexus' ]
+            expo_start_time = nexi[1].started_at
+            if cannons[0].started_at > expo_start_time:
+                print ("Cannons started after expo, no cannon rush")
+                continue
 
             # See if cannon made before 5 minutes
             for i in cannons:
@@ -70,6 +78,7 @@ def analyze_replay(replay, result_data):
 
                 food = player_stats_events[correct_stat_event_index].food_used
                 if food < 20:
+                    from pdb import set_trace; set_trace()
                     print("Cannon built when less than 20 food, cannon rush detected")
                     cannon_rush = True
 
@@ -80,11 +89,19 @@ if __name__ == '__main__':
     result_data = {}
     result_data["cannons"] = 0
     result_data["cannon_rush"] = False
+    result_data["cannon_rush_games"] = []
     paths = init_analyzer()
-    for replay in sc2reader.load_replays(paths, debug=True):
+    for path in paths:
+        replay = sc2reader.load_replay(path, debug=True)
         analyze_replay(replay, result_data)
+        if result_data["cannon_rush"]:
+            result_data["cannon_rush_games"].append(path)
     print ("###")
     print ("Cannons Created", result_data["cannons"])
     if result_data["cannon_rush"]:
         print ("Cannon Rush detected")
+
+    print (" #### ")
+    for i in result_data["cannon_rush_games"]:
+        print ("Cannon rush in: " + i)
 
